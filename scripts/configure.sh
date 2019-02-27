@@ -2,10 +2,10 @@
 
 HOME_DIR=$1
 OUTFILE=$2
-INFILE=$HOME_DIR/etc/qdrouterd.conf.in
 
 function substVars() {
-    DOLLAR='$' envsubst < $1 > $2
+    DOLLAR='$' envsubst < $1 > /tmp/qdrouterd.conf
+    mv /tmp/qdrouterd.conf $1
 }
 
 function printConfig() {
@@ -14,29 +14,29 @@ function printConfig() {
 
 if [[ $QDROUTERD_CONF =~ .*\{.*\}.* ]]; then
     # env var contains inline config
-    echo "$QDROUTERD_CONF" > $INFILE
+    echo "$QDROUTERD_CONF" > $OUTFILE
 elif [[ -n $QDROUTERD_CONF ]]; then
     # treat as path(s)
     IFS=':,' read -r -a array <<< "$QDROUTERD_CONF"
-    > $INFILE
+    > $OUTFILE
     for i in "${array[@]}"; do
         if [[ -d $i ]]; then
             # if directory, concatenate to output all .conf files
             # within it
             for f in $i/*.conf; do
-                cat "$f" >> $INFILE
+                cat "$f" >> $OUTFILE
             done
         elif [[ -f $i ]]; then
             # if file concatenate that to the output
-            cat "$i" >> $INFILE
+            cat "$i" >> $OUTFILE
         else
             echo "No such file or directory: $i"
         fi
     done
 fi
 
-if [ -f $INFILE ]; then
-    substVars $INFILE $OUTFILE
+if [ -f $OUTFILE ]; then
+    substVars $OUTFILE
 fi
 
 if [ -n "$QDROUTERD_AUTO_MESH_DISCOVERY" ]; then
