@@ -3,8 +3,9 @@
 HOME_DIR=$1
 OUTFILE=$2
 
-function swapVars() {
-  sed -i "s/\${HOSTNAME}/$HOSTNAME/g" $1
+function substVars() {
+    DOLLAR='$' envsubst < $1 > /tmp/qdrouterd.conf
+    mv /tmp/qdrouterd.conf $1
 }
 
 function printConfig() {
@@ -35,7 +36,7 @@ elif [[ -n $QDROUTERD_CONF ]]; then
 fi
 
 if [ -f $OUTFILE ]; then
-    swapVars $OUTFILE
+    substVars $OUTFILE
 fi
 
 if [ -n "$QDROUTERD_AUTO_MESH_DISCOVERY" ]; then
