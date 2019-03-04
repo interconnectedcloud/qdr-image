@@ -35,7 +35,7 @@ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_CPP=OFF -DBUILD_RUBY=OFF -DBUILD
     && tar -z -C $WORKING/proton_install -cf $OUTDIR/qpid-proton-image.tar.gz usr \
     && make install
 cd $WORKING/build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_LIBWEBSOCKETS=ON -DBUILD_DOCS=OFF -DCONSOLE_INSTALL=OFF -DCMAKE_INSTALL_PREFIX=/usr $WORKING/qpid-dispatch-src/ \
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_LIBWEBSOCKETS=ON -DBUILD_DOCS=OFF -DCONSOLE_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr $WORKING/qpid-dispatch-src/ \
     && make  \
     && make DESTDIR=$WORKING/staging/ install \
     && tar -z -C $WORKING/staging/ -cf $OUTDIR/qpid-dispatch-image.tar.gz usr etc
