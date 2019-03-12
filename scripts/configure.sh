@@ -4,8 +4,8 @@ HOME_DIR=$1
 OUTFILE=$2
 
 function substVars() {
-    DOLLAR='$' envsubst < $1 > /tmp/qdrouterd.conf
-    mv /tmp/qdrouterd.conf $1
+    DOLLAR='$' envsubst < $1 > /tmp/temp.conf
+    mv /tmp/temp.conf $1
 }
 
 function printConfig() {
