@@ -38,4 +38,5 @@ cd $WORKING/build
 cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_LIBWEBSOCKETS=ON -DBUILD_DOCS=OFF -DCONSOLE_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr $WORKING/qpid-dispatch-src/ \
     && make  \
     && make DESTDIR=$WORKING/staging/ install \
+    && mv $WORKING/staging/usr/share/qpid-dispatch/console /tmp/console && mv /tmp/console/stand-alone/ $WORKING/staging/usr/share/qpid-dispatch/console/ \
     && tar -z -C $WORKING/staging/ -cf $OUTDIR/qpid-dispatch-image.tar.gz usr etc
