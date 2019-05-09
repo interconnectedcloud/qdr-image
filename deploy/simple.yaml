@@ -33,7 +33,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: status.podIP
-        image: quay.io/interconnectedcloud/qdrouterd:1.5.0
+        image: quay.io/interconnectedcloud/qdrouterd:1.7.0
         livenessProbe:
           httpGet:
             path: /
