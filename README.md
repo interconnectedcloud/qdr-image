@@ -4,11 +4,11 @@ Builds an image of the Apache qpid dispatch router designed for use with kuberne
 e.g. to build:
 
 ```
-make && docker build -t quay.io/interconnectedcloud/qdrouterd:1.8.0 . && docker push quay.io/interconnectedcloud/qdrouterd:1.8.0
+make && docker build -t quay.io/interconnectedcloud/qdrouterd:latest . && docker push quay.io/interconnectedcloud/qdrouterd:latest
 ```
 
 to run:
 
 ```
-docker run -it quay.io/interconnectedcloud/qdrouterd:1.8.0
+docker run -it quay.io/interconnectedcloud/qdrouterd:latest
 ```
