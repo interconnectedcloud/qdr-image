@@ -17,14 +17,13 @@ cleanimage:
 	docker image rm -f qdrouterd-builder
 
 push:
-ifeq ($(strip $(DOCKER_USER)),)
-$(error DOCKER_USER not set)
-endif
-ifeq ($(strip $(DOCKER_PASSWORD)),)
-$(error DOCKER_PASSWORD not set)
+# DOCKER_USER and DOCKER_PASSWORD is useful in the CI environment.
+# Use the DOCKER_USER and DOCKER_PASSWORD if available
+# if not available, assume the user has already logged in
+ifneq ($(strip $(DOCKER_USER)$(DOCKER_PASSWORD)),)
+	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 endif
 	docker build -t quay.io/interconnectedcloud/qdrouterd:latest .
-	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 	docker push quay.io/interconnectedcloud/qdrouterd:latest
 
 .PHONY: build cleanimage clean push
