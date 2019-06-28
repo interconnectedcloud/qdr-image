@@ -1,21 +1,21 @@
 PROJECT_NAME=qdrouterd
 DOCKER_REGISTRY=quay.io
 PWD=$(shell pwd)
+
  # This is the latest version of the Qpid Dispatch Router
 DISPATCH_VERSION=1.8.0
 PROTON_VERSION=0.28.0
 PROTON_SOURCE_URL=http://archive.apache.org/dist/qpid/proton/${PROTON_VERSION}/qpid-proton-${PROTON_VERSION}.tar.gz
-# Look for environment variable DOCKER_TAG. If available use it in the URL for obtaining the router source code
-# and use it as the docker tag when pushing the image.
-# If DOCKER_TAG is not available, push the image with the "latest" tag using the router version DISPATCH_VERSION
+ROUTER_SOURCE_URL=http://archive.apache.org/dist/qpid/dispatch/${DISPATCH_VERSION}/qpid-dispatch-${DISPATCH_VERSION}.tar.gz
+
+# If a DOCKER_TAG is specified, go ahead and use it.
+# if DOCKER_TAG is not specified use the DISPATCH_VERSION as the DOCKER_TAG
 ifneq ($(strip $(DOCKER_TAG)),)
 	DOCKER_TAG_VAL=$(DOCKER_TAG)
-	ROUTER_SOURCE_URL=http://archive.apache.org/dist/qpid/dispatch/${DOCKER_TAG_VAL}/qpid-dispatch-${DOCKER_TAG_VAL}.tar.gz
 else
-	DOCKER_TAG_VAL=latest
-	ROUTER_SOURCE_URL=http://archive.apache.org/dist/qpid/dispatch/${DISPATCH_VERSION}/qpid-dispatch-${DISPATCH_VERSION}.tar.gz
+	DOCKER_TAG_VAL=$(DISPATCH_VERSION)
 endif
-$(info DOCKER_TAG_VAL $(DOCKER_TAG_VAL))
+
 all: build
 
 build:
@@ -35,7 +35,7 @@ push:
 ifneq ($(strip $(DOCKER_USER)$(DOCKER_PASSWORD)),)
 	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 endif
-	$(info Serial result = $(DOCKER_TAG_VAL))
+
 	docker build -t quay.io/interconnectedcloud/qdrouterd:${DOCKER_TAG_VAL} .
 	docker push quay.io/interconnectedcloud/qdrouterd:${DOCKER_TAG_VAL}
 
