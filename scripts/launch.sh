@@ -2,7 +2,8 @@
 
 export HOSTNAME_IP_ADDRESS=$(hostname -i)
 
-CONFIG_FILE=/tmp/qdrouterd.conf
+EXT=${QDROUTERD_CONF_TYPE:-conf}
+CONFIG_FILE=/tmp/qdrouterd.${EXT}
 
 ${QDROUTERD_HOME}/bin/configure.sh ${QDROUTERD_HOME} $CONFIG_FILE
 
