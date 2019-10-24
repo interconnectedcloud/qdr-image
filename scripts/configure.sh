@@ -3,11 +3,6 @@
 HOME_DIR=$1
 OUTFILE=$2
 
-function substVars() {
-    DOLLAR='$' envsubst < $1 > /tmp/temp.conf
-    mv /tmp/temp.conf $1
-}
-
 function printConfig() {
     echo "---------------------------------------" && cat $OUTFILE && echo "---------------------------------------"
 }
@@ -36,7 +31,7 @@ elif [[ -n $QDROUTERD_CONF ]]; then
 fi
 
 if [ -f $OUTFILE ]; then
-    substVars $OUTFILE
+    python $HOME_DIR/bin/expandvars.py $OUTFILE
 fi
 
 if [ -n "$QDROUTERD_AUTO_MESH_DISCOVERY" ]; then
