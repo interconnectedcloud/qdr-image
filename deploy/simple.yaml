@@ -86,7 +86,6 @@ data:
         port: 8080
         role: normal
         http: true
-        httpRootDir: /usr/share/qpid-dispatch/console/stand-alone
     }
 
     listener {
