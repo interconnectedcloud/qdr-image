@@ -75,7 +75,6 @@ def extract_ips(response, name):
                 # deleted and we don't want to include it in our pod_list
                 pod_metadata = pod.get("metadata")
                 if pod_metadata.get('deletionTimestamp'):
-                    print ("deletionTimestamp found on pod, ignoring pod")
                     continue
 
                 ip = pod['status']['podIP']
