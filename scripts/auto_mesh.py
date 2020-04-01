@@ -49,27 +49,49 @@ def api_request(host, port, path, token):
     return res.read()
 
 def extract_ips(response, name):
-    ''' Given an API response, return list of pod ips ordered by pod start time'''
+    '''
+    Given an API response, return list of pod ips ordered by pod start time.
+    Deleted pods will not be included in this list.
+    '''
     pod_list = []
     js = json.loads(response)
 
-    for pod in js['items']:
-        # Filter non router pods
-        if('application' in pod['metadata']['labels'] and
-           pod['metadata']['labels']['application'] == name):
-            if('podIP' not in pod['status']):
-                print("Waiting for IP address...")
-                return None
-            ip = pod['status']['podIP']
-            st = pod['status']['startTime']
+    # Check if the HTTP response code is >= 400 and print the failure message
+    if js.get(u'code') >= 400:
+        print ("HTTP ERROR CODE: " + str(js.get(u'code')))
+        print ("ERROR MESSAGE  : " + js.get("message"))
+        return pod_list
 
-            # Format timestamp so it can be sorted
-            timestamp = time.strptime(st, '%Y-%m-%dT%H:%M:%SZ')
-            pod_list.append([ip, timestamp])
+    if js.get("items"):
+        for pod in js['items']:
+            # Filter non router pods
+            if('application' in pod['metadata']['labels'] and
+               pod['metadata']['labels']['application'] == name):
+                if('podIP' not in pod['status']):
+                    print("Waiting for IP address...")
+                    return None
 
-    # sort pods in ascending order by timestamp
-    pod_list.sort(key=lambda x: x[TS])
-    return [pod[IP] for pod in pod_list]
+                # If the pod's deletionTimestamp is set, it has been
+                # deleted and we don't want to include it in our pod_list
+                pod_metadata = pod.get("metadata")
+                if pod_metadata.get('deletionTimestamp'):
+                    print ("deletionTimestamp found on pod, ignoring pod")
+                    continue
+
+                ip = pod['status']['podIP']
+                st = pod['status']['startTime']
+
+                # Format timestamp so it can be sorted
+                timestamp = time.strptime(st, '%Y-%m-%dT%H:%M:%SZ')
+                pod_list.append([ip, timestamp])
+
+    # There is a possibility that all pods have been deleted and
+    # pod_list is empty
+    if pod_list:
+        # sort pods in ascending order by timestamp
+        pod_list.sort(key=lambda x: x[TS])
+        return [pod[IP] for pod in pod_list]
+    return pod_list
 
 def write_connectors(hosts, port="55672", properties={}):
     for host in hosts:
@@ -218,14 +240,17 @@ def query():
         # Send REST requests until other routers are ready
         response = api_request(host, port, path, token)
         ip_list  = extract_ips(response, name)
-        time.sleep(1)
-        if(ip_list is not None):
+        if ip_list is not None:
             break
+        # ip_list is empty, try again after one second
+        time.sleep(1)
 
     # Get the ip addresses of the routers already running
-    si = ip_list.index(ip)
-    ip_list = ip_list[:si]
-    return [{"role": "inter-router", "host":host} for host in ip_list]
+    if ip_list:
+        si = ip_list.index(ip)
+        ip_list = ip_list[:si]
+        return [{"role": "inter-router", "host":host} for host in ip_list]
+    return ip_list
 
 def infer():
     service_name = os.environ.get("QDROUTERD_AUTO_MESH_SERVICE_NAME", "%s-headless" % os.environ.get("APPLICATION_NAME", "amq-interconnect"))
