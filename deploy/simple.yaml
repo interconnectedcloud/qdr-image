@@ -147,13 +147,13 @@ subjects:
   name: myrouter
 roleRef:
   kind: Role
-  name: view
+  name: qdr-view
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: view
+  name: qdr-view
 rules:
 - apiGroups:
   - ""
