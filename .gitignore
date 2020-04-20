@@ -1,0 +1,18 @@
+
+# Build
+
+/build/
+/proton_build/
+/proton_install/
+
+/qpid-dispatch-src/
+/qpid-dispatch*.tar.gz
+/qpid-proton-src/
+/qpid-proton*.tar.gz
+
+/staging/
+
+# Eclipse
+
+/.project
+/.settings/
