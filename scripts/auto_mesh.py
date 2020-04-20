@@ -108,6 +108,18 @@ def get_connectors(hosts, port="55672", properties={}):
         c.update(properties)
     return connectors
 
+# add SASL properties, if they are set on the environment
+def add_sasl_properties(properties):
+    sasl_mechanisms = os.getenv('QDROUTERD_AUTO_MESH_SASL_MECHANISMS')
+    sasl_username = os.getenv('QDROUTERD_AUTO_MESH_SASL_USERNAME')
+    sasl_password = os.getenv('QDROUTERD_AUTO_MESH_SASL_PASSWORD')
+    if sasl_username and sasl_password:
+        if sasl_mechanisms:
+            properties["saslMechanisms"] = sasl_mechanisms
+        properties["saslUsername"] = sasl_username
+        properties["saslPassword"] = sasl_password
+    return properties
+
 class SimpleParser:
 
     def __init__(self, conf_file):
@@ -178,6 +190,7 @@ class JsonConfig:
             properties = e[1]
             if name == "listener" and properties and properties.get("role") == "inter-router":
                 outval = {"port":properties.get("port", "55672")}
+                add_sasl_properties(outval)
                 if "sslProfile" in properties:
                     outval["sslProfile"] = properties["sslProfile"]
                     outval["verifyHostName"] = "no"
@@ -201,6 +214,7 @@ class SimpleConfig:
         for name, properties in entities:
             if name == "listener" and properties and properties.get("role") == "inter-router":
                 outval = {"port":properties.get("port", "55672")}
+                add_sasl_properties(outval)
                 if "sslProfile" in properties:
                     outval["sslProfile"] = properties["sslProfile"]
                     outval["verifyHostName"] = "no"
