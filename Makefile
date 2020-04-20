@@ -1,5 +1,6 @@
 PROJECT_NAME=qdrouterd
 DOCKER_REGISTRY=quay.io
+DOCKER_ORG=interconnectedcloud
 PWD=$(shell pwd)
 
  # This is the latest version of the Qpid Dispatch Router
@@ -28,7 +29,11 @@ clean:
 cleanimage:
 	docker image rm -f qdrouterd-builder
 
-push:
+buildimage:
+	docker build -t ${PROJECT_NAME}:latest .
+	docker tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
+
+push: buildimage
 # DOCKER_USER and DOCKER_PASSWORD is useful in the CI environment.
 # Use the DOCKER_USER and DOCKER_PASSWORD if available
 # if not available, assume the user has already logged in
@@ -36,7 +41,6 @@ ifneq ($(strip $(DOCKER_USER)$(DOCKER_PASSWORD)),)
 	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 endif
 
-	docker build -t quay.io/interconnectedcloud/qdrouterd:${DOCKER_TAG_VAL} .
-	docker push quay.io/interconnectedcloud/qdrouterd:${DOCKER_TAG_VAL}
+	docker push ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 
-.PHONY: build cleanimage clean push
+.PHONY: build buildimage cleanimage clean push
