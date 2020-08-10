@@ -1,0 +1,41 @@
+#!/usr/bin/bash
+
+
+do_patch () {
+    PATCH_DIR=$1
+    PATCH_SRC=$2
+    if [ -d "${PATCH_DIR}" ]
+    then
+        for patch in $(find ${PATCH_DIR} -type f -name "*.patch"); do
+            echo Applying patch ${patch}
+            patch -f -d "${PATCH_SRC}" -p1 < $patch
+        done;
+    fi
+}
+
+BASE=`dirname $0`
+ABS_BASE=`cd $BASE && pwd`
+WORKING=`pwd`
+OUTDIR=${3:-$ABS_BASE}
+
+QPID_DISPATCH_BRANCH="${1:-master}"
+QPID_PROTON_BRANCH="${2:-master}"
+
+mkdir -p qpid-dispatch-src qpid-proton-src build staging proton_build proton_install
+git clone -b ${QPID_PROTON_BRANCH} https://github.com/apache/qpid-proton.git qpid-proton-src
+git clone -b ${QPID_DISPATCH_BRANCH} https://github.com/apache/qpid-dispatch.git qpid-dispatch-src
+
+do_patch "patches/proton" qpid-proton-src
+do_patch "patches/dispatch" qpid-dispatch-src
+
+cd proton_build
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_CPP=OFF -DBUILD_RUBY=OFF -DBUILD_GO=OFF -DCMAKE_INSTALL_PREFIX=/usr -DSYSINSTALL_PYTHON=ON $WORKING/qpid-proton-src/ \
+    && make \
+    && make DESTDIR=$WORKING/proton_install install \
+    && tar -z -C $WORKING/proton_install -cf $OUTDIR/qpid-proton-image.tar.gz usr \
+    && make install
+cd $WORKING/build
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DUSE_LIBWEBSOCKETS=ON -DBUILD_DOCS=OFF -DCONSOLE_INSTALL=ON -DCMAKE_INSTALL_PREFIX=/usr $WORKING/qpid-dispatch-src/ \
+    && make  \
+    && make DESTDIR=$WORKING/staging/ install \
+    && tar -z -C $WORKING/staging/ -cf $OUTDIR/qpid-dispatch-image.tar.gz usr etc
