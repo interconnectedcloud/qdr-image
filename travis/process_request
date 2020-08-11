@@ -17,7 +17,16 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-make
-# make push is the same as make push DOCKER_TAG=1.8.0
-make push
-make push DOCKER_TAG=latest
+if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then
+    make
+else
+    make ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/master.tar.gz PROTON_SOURCE_URL=http://github.com/apache/qpid-proton/archive/master.tar.gz
+fi
+
+if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
+    make push DOCKER_TAG=nightly
+elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    # make push is the same as make push DOCKER_TAG=1.8.0
+    make push
+    make push DOCKER_TAG=latest
+fi
