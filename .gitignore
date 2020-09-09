@@ -16,3 +16,10 @@
 
 /.project
 /.settings/
+
+# Test
+
+/**/*.iml
+/**/.idea/
+/**/target/
+/**/result/
