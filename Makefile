@@ -33,6 +33,10 @@ buildimage:
 	docker build -t ${PROJECT_NAME}:latest .
 	docker tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 
+testimages:
+	@echo Building atomic test images
+	(cd test/container-images && make)
+
 push: buildimage
 # DOCKER_USER and DOCKER_PASSWORD is useful in the CI environment.
 # Use the DOCKER_USER and DOCKER_PASSWORD if available
