@@ -1,5 +1,5 @@
 DOCKER=docker
-DOCKER_REGISTRY=docker.io
+DOCKER_REGISTRY=quay.io
 DOCKER_ORG=atomictests
 
 # $(1) - image name

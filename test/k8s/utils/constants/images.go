@@ -6,5 +6,5 @@ const (
 	ActiveMQArtemisImage = "quay.io/artemiscloud/activemq-artemis-broker:latest"
 
 	// Atomic test images
-	JmsAmqpTestsImage = "docker.io/atomictests/jms-amqp-tests:latest"
+	JmsAmqpTestsImage = "quay.io/atomictests/jms-amqp-tests:latest"
 )
