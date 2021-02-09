@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export POD_ID=${HOSTNAME##*-}
 HOME_DIR=$1
 OUTFILE=$2
 
