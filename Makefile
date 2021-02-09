@@ -1,3 +1,4 @@
+DOCKER := docker
 PROJECT_NAME=qdrouterd
 DOCKER_REGISTRY=quay.io
 DOCKER_ORG=interconnectedcloud
@@ -20,18 +21,18 @@ endif
 all: build
 
 build:
-	docker build -t qdrouterd-builder:${DOCKER_TAG_VAL} builder
-	docker run -ti -v $(PWD):/build:z -w /build qdrouterd-builder:${DOCKER_TAG_VAL} bash build_tarballs ${ROUTER_SOURCE_URL} ${PROTON_SOURCE_URL}
+	${DOCKER} build -t qdrouterd-builder:${DOCKER_TAG_VAL} builder
+	${DOCKER} run -ti -v $(PWD):/build:z -w /build qdrouterd-builder:${DOCKER_TAG_VAL} bash build_tarballs ${ROUTER_SOURCE_URL} ${PROTON_SOURCE_URL}
 
 clean:
 	rm -rf proton_build proton_install qpid-dispatch.tar.gz qpid-dispatch-src qpid-proton.tar.gz qpid-proton-src staging build
 
 cleanimage:
-	docker image rm -f qdrouterd-builder
+	${DOCKER} image rm -f qdrouterd-builder
 
 buildimage:
-	docker build -t ${PROJECT_NAME}:latest .
-	docker tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
+	${DOCKER} build -t ${PROJECT_NAME}:latest .
+	${DOCKER} tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 
 testimages:
 	@echo Building atomic test images
@@ -42,9 +43,9 @@ push: buildimage
 # Use the DOCKER_USER and DOCKER_PASSWORD if available
 # if not available, assume the user has already logged in
 ifneq ($(strip $(DOCKER_USER)$(DOCKER_PASSWORD)),)
-	@docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
+	@${DOCKER} login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 endif
 
-	docker push ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
+	${DOCKER} push ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 
 .PHONY: build buildimage cleanimage clean push
