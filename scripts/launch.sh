@@ -11,4 +11,10 @@ if [ -f $CONFIG_FILE ]; then
     ARGS="-c $CONFIG_FILE"
 fi
 
-exec qdrouterd $ARGS
+if [[ $QDROUTERD_DEBUG = "gdb" ]]; then
+    exec gdb -batch -ex "run" -ex "bt" --args qdrouterd $ARGS
+elif [[ $QDROUTERD_DEBUG = "valgrind" ]]; then
+    exec valgrind qdrouterd $ARGS
+else
+    exec qdrouterd $ARGS
+fi
