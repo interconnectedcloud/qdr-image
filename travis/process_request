@@ -20,7 +20,9 @@
 if [ "$TRAVIS_EVENT_TYPE" != "cron" ]; then
     make
 else
-    make ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/master.tar.gz PROTON_SOURCE_URL=http://github.com/apache/qpid-proton/archive/master.tar.gz
+    make ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/master.tar.gz
+    #TODO Use master once issue is fixed on qpid-dispatch
+    #make ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/master.tar.gz PROTON_SOURCE_URL=http://github.com/apache/qpid-proton/archive/master.tar.gz
 fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
