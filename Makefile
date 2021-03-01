@@ -32,13 +32,20 @@ cleanimage:
 
 buildimage:
 	${DOCKER} build -t ${PROJECT_NAME}:latest .
-	${DOCKER} tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 
 testimages:
 	@echo Building atomic test images
 	(cd test/container-images && make)
 
-push: buildimage
+test:
+	@echo Running qdr-image tests
+	cd test/k8s ; go test -v -count 1 -p 1 -timeout 60m -tags integration ./integration/...
+
+pushlocal:
+	${DOCKER} tag ${PROJECT_NAME}:latest 127.0.0.1:5000/${PROJECT_NAME}:latest
+	${DOCKER} push 127.0.0.1:5000/${PROJECT_NAME}:latest
+
+push:
 # DOCKER_USER and DOCKER_PASSWORD is useful in the CI environment.
 # Use the DOCKER_USER and DOCKER_PASSWORD if available
 # if not available, assume the user has already logged in
@@ -46,6 +53,7 @@ ifneq ($(strip $(DOCKER_USER)$(DOCKER_PASSWORD)),)
 	@${DOCKER} login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 endif
 
+	${DOCKER} tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 	${DOCKER} push ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 
-.PHONY: build buildimage cleanimage clean push
+.PHONY: build buildimage cleanimage clean test push pushlocal

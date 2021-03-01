@@ -1,6 +1,7 @@
 package router_broker
 
 import (
+	"context"
 	"os"
 	"testing"
 	"time"
@@ -10,10 +11,12 @@ import (
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/apps/router"
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/k8s"
 	"github.com/skupperproject/skupper/pkg/kube"
+	"github.com/skupperproject/skupper/pkg/utils"
 	"github.com/skupperproject/skupper/test/utils/base"
 	"github.com/skupperproject/skupper/test/utils/constants"
 	"gotest.tools/assert"
 	core "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // TestMain helps parsing the common test flags and running package level tests
@@ -118,12 +121,30 @@ func Setup(t *testing.T, namespaceId string) {
 	assert.Assert(t, err)
 
 	// Waiting on both broker and router pods
-	brokerPods, err := kube.GetDeploymentPods(brokerDep.Name, "app=broker", ctx.Namespace, ctx.VanClient.KubeClient)
-	routerPods, err := kube.GetDeploymentPods(routerDep.Name, "app=router", ctx.Namespace, ctx.VanClient.KubeClient)
-	assert.Assert(t, err)
-	for _, pod := range append(brokerPods, routerPods...) {
-		_, err = kube.WaitForPodStatus(ctx.Namespace, ctx.VanClient.KubeClient, pod.Name, core.PodRunning, constants.ImagePullingAndResourceCreationTimeout, constants.DefaultTick)
-		assert.Assert(t, err, "pod not running %s", pod.Name)
+	timeoutCtx, cancel := context.WithTimeout(context.TODO(), constants.ImagePullingAndResourceCreationTimeout)
+	defer cancel()
+	for _, podLabel := range []string{"app=broker", "app=router"} {
+		err = utils.RetryWithContext(timeoutCtx, constants.DefaultTick, func() (bool, error) {
+			// retrieve pods for given label
+			pods, err := kube.GetDeploymentPods("", podLabel, ctx.Namespace, ctx.VanClient.KubeClient)
+			assert.Assert(t, err)
+			// get first pod only
+			pod := pods[0]
+			curPod, err := ctx.VanClient.KubeClient.CoreV1().Pods(ctx.Namespace).Get(pod.Name, v1.GetOptions{})
+			if err != nil {
+				// pod does not exist yet
+				if curPod != nil {
+					t.Logf("pod not yet running - name: %s - status: %s", pod.Name, curPod.Status.Phase)
+				} else {
+					t.Logf("pod not yet running - name: %s", pod.Name)
+				}
+				return false, nil
+			}
+			t.Logf("pod state - name: %s - status: %s [expected: %s] - image: %s",
+				pod.Name, curPod.Status.Phase, core.PodRunning, pod.Spec.Containers[0].Image)
+			return curPod.Status.Phase == core.PodRunning, nil
+		})
+		assert.Assert(t, err, "timed out waiting on pods to be running")
 	}
 
 	t.Logf("%s - setup is complete", time.Now().String())

@@ -24,9 +24,14 @@ else
 fi
 
 if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then
-    make push DOCKER_TAG=nightly
+    # build, run tests and if all worked publish a nightly image
+    make buildimage pushlocal test push DOCKER_TAG=nightly || exit 1
 elif [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
-    # make push is the same as make push DOCKER_TAG=1.8.0
-    make push
+    # build, run tests and if all worked publish DOCKER_TAG (default) image tag
+    make buildimage pushlocal test push || exit 1
+    # if test passed earlier, simply tag and push latest
     make push DOCKER_TAG=latest
+else
+    # simply build and run tests
+    make buildimage pushlocal test || exit 1
 fi
