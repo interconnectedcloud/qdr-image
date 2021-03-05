@@ -6,6 +6,7 @@ import (
 
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils"
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/constants"
+	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/k8s"
 	apps "k8s.io/api/apps/v1"
 	core "k8s.io/api/core/v1"
 	meta "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,8 +15,7 @@ import (
 const QpidDispatchImageEnvVar = "QPID_DISPATCH_IMAGE"
 
 type QpidDispatchDeploymentOpts struct {
-	Image     string
-	Labels    map[string]string
+	k8s.DeploymentOpts
 	ConfigMap *QpidDispatchConfigMap
 }
 
