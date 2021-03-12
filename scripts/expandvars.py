@@ -30,7 +30,7 @@ try:
     if not is_file:
         raise Exception()
 except Exception as e:
-    print ("Usage: python expandvars.py <absolute_file_path>. Example - python expandvars.py /tmp/qdrouterd.conf")
+    print ("Usage: python3 expandvars.py <absolute_file_path>. Example - python3 expandvars.py /tmp/qdrouterd.conf")
     ## Unix programs generally use 2 for command line syntax errors
     sys.exit(2)
 

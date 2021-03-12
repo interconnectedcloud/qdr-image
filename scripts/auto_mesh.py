@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 import json
-import httplib
+import http.client
 import os
 import re
 import ssl
@@ -35,7 +35,7 @@ def retrieve_namespace():
 def api_request(host, port, path, token):
     ''' Makes REST request to API server and returns response'''
     context = ssl._create_unverified_context()
-    conn = httplib.HTTPSConnection(host, port, timeout=5, context=context)
+    conn = http.client.HTTPSConnection(host, port, timeout=5, context=context)
     conn._context.check_hostname = False
     conn._context.verify_mode = ssl.CERT_NONE
     #conn.set_debuglevel(1)
@@ -46,7 +46,7 @@ def api_request(host, port, path, token):
     req = conn.request("GET", path , headers=headers)
     res = conn.getresponse()
 
-    return res.read()
+    return res
 
 def extract_ips(response, name):
     '''
@@ -54,12 +54,13 @@ def extract_ips(response, name):
     Deleted pods will not be included in this list.
     '''
     pod_list = []
-    js = json.loads(response)
+
+    js = json.loads(response.read())
 
     # Check if the HTTP response code is >= 400 and print the failure message
-    if js.get(u'code') >= 400:
-        print ("HTTP ERROR CODE: " + str(js.get(u'code')))
-        print ("ERROR MESSAGE  : " + js.get("message"))
+    if response.code >= 400:
+        print ("HTTP ERROR CODE: " + str(response.code))
+        print ("ERROR MESSAGE  : " + response.reason)
         return pod_list
 
     if js.get("items"):
@@ -90,6 +91,7 @@ def extract_ips(response, name):
         # sort pods in ascending order by timestamp
         pod_list.sort(key=lambda x: x[TS])
         return [pod[IP] for pod in pod_list]
+
     return pod_list
 
 def write_connectors(hosts, port="55672", properties={}):
@@ -260,6 +262,7 @@ def query():
 
     # Get the ip addresses of the routers already running
     if ip_list:
+        # Keep only pods created after current pod
         si = ip_list.index(ip)
         ip_list = ip_list[:si]
         return [{"role": "inter-router", "host":host} for host in ip_list]

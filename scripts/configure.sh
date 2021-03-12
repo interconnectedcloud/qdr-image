@@ -32,11 +32,11 @@ elif [[ -n $QDROUTERD_CONF ]]; then
 fi
 
 if [ -f $OUTFILE ]; then
-    python $HOME_DIR/bin/expandvars.py $OUTFILE
+    python3 $HOME_DIR/bin/expandvars.py $OUTFILE
 fi
 
 if [ -n "$QDROUTERD_AUTO_MESH_DISCOVERY" ]; then
-    python $HOME_DIR/bin/auto_mesh.py $OUTFILE || printConfig
+    python3 $HOME_DIR/bin/auto_mesh.py $OUTFILE || printConfig
 fi
 
 if [ -n "$QDROUTERD_AUTO_CREATE_SASLDB_SOURCE" ]; then
