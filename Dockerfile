@@ -1,5 +1,5 @@
 FROM fedora:30
-RUN dnf -y install glibc.i686 cyrus-sasl-lib cyrus-sasl-plain libuuid openssl python gettext hostname iputils libwebsockets-devel gdb valgrind && dnf -y update && dnf clean all
+RUN dnf -y install glibc.i686 cyrus-sasl-lib cyrus-sasl-plain libuuid openssl python3 gettext hostname iputils libwebsockets-devel gdb valgrind && dnf -y update && dnf clean all
 ADD qpid-proton-image.tar.gz qpid-dispatch-image.tar.gz /
 WORKDIR /home/qdrouterd/etc
 WORKDIR /home/qdrouterd/bin
