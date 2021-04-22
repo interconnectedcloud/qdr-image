@@ -9,6 +9,7 @@ import (
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils"
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/constants"
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/k8s"
+	"github.com/skupperproject/skupper/pkg/kube"
 	"github.com/skupperproject/skupper/test/utils/base"
 	skconstants "github.com/skupperproject/skupper/test/utils/constants"
 	k8s2 "github.com/skupperproject/skupper/test/utils/k8s"
@@ -51,6 +52,15 @@ func TestJmsAmqp(t *testing.T) {
 
 	// Waiting for job to complete
 	job, err := k8s2.WaitForJob(ctx.Namespace, ctx.VanClient.KubeClient, jmsAmqpTests.Name, skconstants.ImagePullingAndResourceCreationTimeout)
+
+	// Printing job output
+	pods, _ := kube.GetDeploymentPods("", "app=jms-amqp-tests", ctx.Namespace, ctx.VanClient.KubeClient)
+	if len(pods) > 0 {
+		log, _ := kube.GetPodContainerLogs(pods[0].Name, pods[0].Spec.Containers[0].Name, ctx.Namespace, ctx.VanClient.KubeClient)
+		t.Logf("Job: %s - Logs:", jmsAmqpTests.Name)
+		t.Logf(log)
+	}
+
 	assert.Assert(t, err)
 	k8s2.AssertJob(t, job)
 
