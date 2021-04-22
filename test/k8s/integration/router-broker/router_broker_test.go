@@ -65,8 +65,10 @@ func Setup(t *testing.T, namespaceId string) {
 
 	// Preparing the Deployment
 	brokerDep, err := broker.NewDeployment(ctx.Namespace, broker.ActiveMQArtemisDeploymentOpts{
+		DeploymentOpts: k8s.DeploymentOpts{
+			Labels: brokerLabels,
+		},
 		Name:   "broker",
-		Labels: brokerLabels,
 		Queues: brokerQueues,
 	})
 	_, err = deployments.Create(brokerDep)
@@ -108,7 +110,9 @@ func Setup(t *testing.T, namespaceId string) {
 
 	// Deploying the router instance
 	routerDep, err := router.NewDeployment(ctx.Namespace, routerConfig, router.QpidDispatchDeploymentOpts{
-		Labels:    routerLabels,
+		DeploymentOpts: k8s.DeploymentOpts{
+			Labels: routerLabels,
+		},
 		ConfigMap: routerConfigMap,
 	})
 	assert.Assert(t, err)

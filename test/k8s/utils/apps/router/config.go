@@ -307,7 +307,59 @@ connector {
     verifyHostname: false
     {{- end}}
 }
-{{- end}}`
+{{- end}}
+{{range .TcpConnectors}}
+tcpConnector {
+    {{- if .Host}}
+    host: {{.Host}}
+    {{- end}}
+    {{- if .Port}}
+    port: {{.Port}}
+    {{- end}}
+    {{- if .Address}}
+    address: {{.Address}}
+    {{- end}}
+    {{- if .SiteId}}
+    siteId: {{.SiteId}}
+    {{- end}}
+}
+{{- end}}
+{{range .TcpListeners}}
+tcpListener {
+    {{- if .Host}}
+    host: {{.Host}}
+    {{- end}}
+    {{- if .Port}}
+    port: {{.Port}}
+    {{- end}}
+    {{- if .Address}}
+    address: {{.Address}}
+    {{- end}}
+    {{- if .SiteId}}
+    siteId: {{.SiteId}}
+    {{- end}}
+}
+{{- end}}
+{{range .Logs}}
+log {
+    {{- if .Module}}
+    module: {{.Module}}
+    {{- end}}
+    {{- if .Enable}}
+    enable: {{.Enable}}
+    {{- end}}
+    {{- if .IncludeTimestamp}}
+    includeTimestamp: {{.IncludeTimestamp}}
+    {{- end}}
+    {{- if .IncludeSource}}
+    includeSource: {{.IncludeSource}}
+    {{- end}}
+    {{- if .OutputFile}}
+    outputFile: {{.OutputFile}}
+    {{- end}}
+}
+{{- end}}
+`
 	var buff bytes.Buffer
 	qdrconfig := template.Must(template.New("qdrconfig").Parse(config))
 	qdrconfig.Execute(&buff, q)

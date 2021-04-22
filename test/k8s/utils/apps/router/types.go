@@ -15,6 +15,9 @@ type QpidDispatch struct {
 	Connectors            []Connector    `json:"connectors,omitempty"`
 	InterRouterConnectors []Connector    `json:"interRouterConnectors,omitempty"`
 	EdgeConnectors        []Connector    `json:"edgeConnectors,omitempty"`
+	TcpConnectors         []TcpConnector `json:"tcpConnectors,omitempty"`
+	TcpListeners          []TcpListener  `json:"tcpListeners,omitempty"`
+	Logs                  []Log          `json:"logs,omitempty"`
 }
 
 type RouterRoleType string
@@ -89,4 +92,26 @@ type AutoLink struct {
 	ExternalAddress string `json:"externalAddress,omitempty"`
 	Phase           *int32 `json:"phase,omitempty"`
 	Fallback        bool   `json:"fallback,omitempty"`
+}
+
+type TcpConnector struct {
+	Host    string `json:"host"`
+	Port    string `json:"port"`
+	Address string `json:"address"`
+	SiteId  string `json:"siteId,omitempty"`
+}
+
+type TcpListener struct {
+	Host    string `json:"host"`
+	Port    string `json:"port"`
+	Address string `json:"address"`
+	SiteId  string `json:"siteId,omitempty"`
+}
+
+type Log struct {
+	Module           string `json:"module"`
+	Enable           string `json:"enable"`
+	IncludeTimestamp bool   `json:"includeTimestamp,omitempty"`
+	IncludeSource    bool   `json:"includeSource,omitempty"`
+	OutputFile       string `json:"outputFile,omitempty"`
 }

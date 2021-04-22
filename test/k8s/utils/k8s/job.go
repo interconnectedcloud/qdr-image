@@ -12,6 +12,7 @@ type JobOpts struct {
 	Restart      core.RestartPolicy
 	Env          map[string]string
 	Labels       map[string]string
+	Args         []string
 }
 
 func NewJob(name, namespace string, opts JobOpts) *v1.Job {
@@ -43,7 +44,7 @@ func NewJob(name, namespace string, opts JobOpts) *v1.Job {
 				},
 				Spec: core.PodSpec{
 					Containers: []core.Container{
-						{Name: name, Image: opts.Image, Env: envVar},
+						{Name: name, Image: opts.Image, Env: envVar, Args: opts.Args},
 					},
 					RestartPolicy:                 opts.Restart,
 					TerminationGracePeriodSeconds: &terminationSecs,

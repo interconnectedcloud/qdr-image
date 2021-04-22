@@ -7,6 +7,7 @@ import (
 
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils"
 	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/constants"
+	"github.com/interconnectedcloud/qdr-image/test/k8s/utils/k8s"
 	v1 "k8s.io/api/apps/v1"
 	v13 "k8s.io/api/core/v1"
 	v12 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -15,11 +16,10 @@ import (
 const ActiveMQArtemisImageEnvVar = "ACTIVEMQ_ARTEMIS_IMAGE"
 
 type ActiveMQArtemisDeploymentOpts struct {
+	k8s.DeploymentOpts
 	Name   string
 	User   string
 	Pass   string
-	Image  string
-	Labels map[string]string
 	Queues []string
 }
 
