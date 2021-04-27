@@ -5,8 +5,8 @@ DOCKER_ORG=interconnectedcloud
 PWD=$(shell pwd)
 
  # This is the latest version of the Qpid Dispatch Router
-DISPATCH_VERSION=1.15.0
-PROTON_VERSION=0.33.0
+DISPATCH_VERSION=1.16.0-freeze
+PROTON_VERSION=0.34.0
 PROTON_SOURCE_URL=http://archive.apache.org/dist/qpid/proton/${PROTON_VERSION}/qpid-proton-${PROTON_VERSION}.tar.gz
 ROUTER_SOURCE_URL=http://archive.apache.org/dist/qpid/dispatch/${DISPATCH_VERSION}/qpid-dispatch-${DISPATCH_VERSION}.tar.gz
 
@@ -16,6 +16,14 @@ ifneq ($(strip $(DOCKER_TAG)),)
 	DOCKER_TAG_VAL=$(DOCKER_TAG)
 else
 	DOCKER_TAG_VAL=$(DISPATCH_VERSION)
+endif
+
+# Ignores pushing latest tag when DISPATCH_VERSION contains freeze
+PUSH_SKIP=false
+ifeq ($(DOCKER_TAG_VAL), latest)
+ifneq (,$(findstring freeze,$(DISPATCH_VERSION)))
+	PUSH_SKIP=true
+endif
 endif
 
 all: build
@@ -53,7 +61,12 @@ ifneq ($(strip $(DOCKER_USER)$(DOCKER_PASSWORD)),)
 	@${DOCKER} login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
 endif
 
+# If DISPATCH_VERSION contains freeze and tag to be pushed is latest, it should be skipped
+ifneq ($(PUSH_SKIP),true)
 	${DOCKER} tag ${PROJECT_NAME}:latest ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
 	${DOCKER} push ${DOCKER_REGISTRY}/${DOCKER_ORG}/${PROJECT_NAME}:${DOCKER_TAG_VAL}
+else
+	@echo Push skipped for $(DOCKER_TAG_VAL)
+endif
 
 .PHONY: build buildimage cleanimage clean test push pushlocal
