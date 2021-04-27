@@ -7,8 +7,8 @@ PWD=$(shell pwd)
  # This is the latest version of the Qpid Dispatch Router
 DISPATCH_VERSION=1.16.0-freeze
 PROTON_VERSION=0.34.0
-PROTON_SOURCE_URL=http://archive.apache.org/dist/qpid/proton/${PROTON_VERSION}/qpid-proton-${PROTON_VERSION}.tar.gz
-ROUTER_SOURCE_URL=http://archive.apache.org/dist/qpid/dispatch/${DISPATCH_VERSION}/qpid-dispatch-${DISPATCH_VERSION}.tar.gz
+ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/${DISPATCH_VERSION}.tar.gz
+PROTON_SOURCE_URL=http://github.com/apache/qpid-proton/archive/${PROTON_VERSION}.tar.gz
 
 # If a DOCKER_TAG is specified, go ahead and use it.
 # if DOCKER_TAG is not specified use the DISPATCH_VERSION as the DOCKER_TAG
