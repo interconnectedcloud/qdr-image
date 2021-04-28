@@ -103,6 +103,9 @@ func Deploy(t *testing.T, runner base.ClusterTestRunner, meshSize int) base.Clus
 		routerDep, err := router.NewDeployment(ctx.Namespace, qdr, router.QpidDispatchDeploymentOpts{
 			DeploymentOpts: k8s.DeploymentOpts{
 				Labels: routerLabels,
+				EnvVars: []v1.EnvVar{
+					{Name: "QDROUTERD_DEBUG", Value: "gdb"},
+				},
 			},
 			ConfigMap: cm,
 		})
@@ -245,7 +248,7 @@ func RunJob(t *testing.T, runner base.ClusterTestRunner, dataSize string, meshSi
 	})
 
 	// Retrieving last topology change for all the routers
-	topoMapBefore, err := retrieveTopologyChangeMap(ctx, meshSize)
+	topoMapBefore, err := retrieveTopologyChangeMap(t, ctx, meshSize)
 	assert.Assert(t, err)
 
 	// Create iperf3 client Job
@@ -266,7 +269,7 @@ func RunJob(t *testing.T, runner base.ClusterTestRunner, dataSize string, meshSi
 	verifyRouterPods(t, runner, meshSize)
 
 	// Retrieving last topology change for all the routers
-	topoMapAfter, err := retrieveTopologyChangeMap(ctx, meshSize)
+	topoMapAfter, err := retrieveTopologyChangeMap(t, ctx, meshSize)
 	assert.Assert(t, err)
 
 	// Comparing topology change times
@@ -291,18 +294,22 @@ func verifyRouterPods(t *testing.T, runner base.ClusterTestRunner, meshSize int)
 			// just adding more verbosity in case of router restarts
 			if restarts != int32(0) {
 				t.Logf("ERROR - router has restarted. Logs:")
-				linesToTail := int64(50)
-				logs, _ := kube.GetPodContainerLogsWithOpts(pod.Name, "", ctx.Namespace, ctx.VanClient.KubeClient, v1.PodLogOptions{TailLines: &linesToTail, Previous: true})
-				t.Logf(logs)
+				printRouterLogs(t, pod, ctx)
 			}
 			assert.Assert(t, restarts == int32(0), "pod %s has been restarted %d times", pod.Name, int(restarts))
 		}
 	}
 }
 
+func printRouterLogs(t *testing.T, pod v1.Pod, ctx *base.ClusterContext) {
+	linesToTail := int64(50)
+	logs, _ := kube.GetPodContainerLogsWithOpts(pod.Name, "", ctx.Namespace, ctx.VanClient.KubeClient, v1.PodLogOptions{TailLines: &linesToTail, Previous: true})
+	t.Logf(logs)
+}
+
 // retrieveTopologyChangeMap returns a map indexed by router id (1..meshSize) containing
 // the lastTopoChange value returned by qdmanage for each respective router.
-func retrieveTopologyChangeMap(ctx *base.ClusterContext, meshSize int) (map[int]int, error) {
+func retrieveTopologyChangeMap(t *testing.T, ctx *base.ClusterContext, meshSize int) (map[int]int, error) {
 	topoMap := map[int]int{}
 	for i := 1; i <= meshSize; i++ {
 		routerLabel := fmt.Sprintf("app=router-%d", i)
@@ -316,6 +323,8 @@ func retrieveTopologyChangeMap(ctx *base.ClusterContext, meshSize int) (map[int]
 				return node.NextHop == "(self)"
 			})
 			if err != nil {
+				t.Logf("Error querying router nodes - %v - Logs:", err)
+				printRouterLogs(t, pod, ctx)
 				return topoMap, err
 			}
 			node := nodes[0].(entities.Node)
