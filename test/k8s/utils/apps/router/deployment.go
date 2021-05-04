@@ -43,6 +43,12 @@ func NewDeployment(namespace string, qpidDispatch QpidDispatch, opts QpidDispatc
 	restartPolicy := core.RestartPolicyAlways
 
 	// Preparing the Deployment
+	envVars := []core.EnvVar{
+		{Name: "QDROUTERD_CONF", Value: "/opt/router/qdrouterd.conf"},
+	}
+	if len(opts.EnvVars) > 0 {
+		envVars = append(envVars, opts.EnvVars...)
+	}
 	d = &apps.Deployment{
 		ObjectMeta: meta.ObjectMeta{
 			Name:      qpidDispatch.Id,
@@ -61,9 +67,7 @@ func NewDeployment(namespace string, qpidDispatch QpidDispatch, opts QpidDispatc
 				Spec: core.PodSpec{
 					Containers: []core.Container{
 						{Name: qpidDispatch.Id, Image: image, ImagePullPolicy: pullPolicy,
-							Env: []core.EnvVar{
-								{Name: "QDROUTERD_CONF", Value: "/opt/router/qdrouterd.conf"},
-							},
+							Env: envVars,
 							VolumeMounts: []core.VolumeMount{
 								{Name: "router-config", MountPath: "/opt/router", ReadOnly: true},
 							}},
