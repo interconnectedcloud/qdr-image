@@ -5,7 +5,7 @@ DOCKER_ORG=interconnectedcloud
 PWD=$(shell pwd)
 
  # This is the latest version of the Qpid Dispatch Router
-DISPATCH_VERSION=1.16.0-freeze
+DISPATCH_VERSION=1.16.x
 PROTON_VERSION=0.34.0
 ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/${DISPATCH_VERSION}.tar.gz
 PROTON_SOURCE_URL=http://github.com/apache/qpid-proton/archive/${PROTON_VERSION}.tar.gz
@@ -18,10 +18,13 @@ else
 	DOCKER_TAG_VAL=$(DISPATCH_VERSION)
 endif
 
-# Ignores pushing latest tag when DISPATCH_VERSION contains freeze
+# Ignores pushing latest tag when DISPATCH_VERSION contains freeze or x
 PUSH_SKIP=false
 ifeq ($(DOCKER_TAG_VAL), latest)
 ifneq (,$(findstring freeze,$(DISPATCH_VERSION)))
+	PUSH_SKIP=true
+endif
+ifneq (,$(findstring x,$(DISPATCH_VERSION)))
 	PUSH_SKIP=true
 endif
 endif
