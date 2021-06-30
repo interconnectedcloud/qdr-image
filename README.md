@@ -1,6 +1,6 @@
 # qdrouterd-image
 
-[![Build Status](https://travis-ci.org/interconnectedcloud/qdr-image.svg?branch=master)](https://travis-ci.org/interconnectedcloud/qdr-image)
+[![Build Status](https://travis-ci.com/interconnectedcloud/qdr-image.svg?branch=master)](https://travis-ci.com/interconnectedcloud/qdr-image)
 
 Builds an image of the Apache qpid dispatch router designed for use with kubernetes and openshift
 
