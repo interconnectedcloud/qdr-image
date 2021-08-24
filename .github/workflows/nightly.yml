@@ -1,0 +1,28 @@
+name: Build and Publish qdrouterd nightly image
+on:
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  has-changes:
+    name: Verify if qpid-dispatch has changed in the past 24h
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: ./.github/scripts/github-changed-24h.sh
+  build-nightly:
+    name: Publish qdrouterd nightly image
+    needs: has-changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '1.15'
+      - uses: ./.github/actions/minikube
+      - run: |
+          # build, run tests and if all worked publish a nightly image
+          make ROUTER_SOURCE_URL=http://github.com/apache/qpid-dispatch/archive/main.tar.gz PROTON_SOURCE_URL=http://github.com/apache/qpid-proton/archive/main.tar.gz
+          make buildimage pushlocal test push DOCKER_TAG=nightly || exit 1
+        env:
+          DOCKER_USER: '${{ secrets.DOCKER_USER }}'
+          DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'
