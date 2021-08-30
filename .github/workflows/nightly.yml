@@ -5,13 +5,17 @@ on:
 jobs:
   has-changes:
     name: Verify if qpid-dispatch has changed in the past 24h
+    outputs:
+      changed: ${{ steps.changed-24h.outputs.changed }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - run: ./.github/scripts/github-changed-24h.sh
+        id: changed-24h
   build-nightly:
     name: Publish qdrouterd nightly image
     needs: has-changes
+    if: ${{ needs.has-changes.outputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
