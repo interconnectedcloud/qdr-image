@@ -29,7 +29,7 @@ do_patch "patches/proton" qpid-proton-src
 do_patch "patches/dispatch" qpid-dispatch-src
 
 cd proton_build
-cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_CPP=OFF -DBUILD_RUBY=OFF -DBUILD_GO=OFF -DCMAKE_INSTALL_PREFIX=/usr -DSYSINSTALL_PYTHON=ON $WORKING/qpid-proton-src/ \
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_CPP=OFF -DBUILD_RUBY=OFF -DBUILD_GO=OFF -DCMAKE_INSTALL_PREFIX=/usr -DSYSINSTALL_PYTHON=ON -DBUILD_TLS=ON $WORKING/qpid-proton-src/ \
     && make \
     && make DESTDIR=$WORKING/proton_install install \
     && tar -z -C $WORKING/proton_install -cf $OUTDIR/qpid-proton-image.tar.gz usr \
