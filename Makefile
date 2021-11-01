@@ -5,10 +5,10 @@ DOCKER_ORG=interconnectedcloud
 PWD=$(shell pwd)
 
  # This is the latest version of the Qpid Dispatch Router
-DISPATCH_VERSION=1.17.0
-PROTON_VERSION=0.34.0
+DISPATCH_VERSION=1.17.1
+PROTON_VERSION=0.35.0
 PROTON_SOURCE_URL=http://archive.apache.org/dist/qpid/proton/${PROTON_VERSION}/qpid-proton-${PROTON_VERSION}.tar.gz
-ROUTER_SOURCE_URL=http://archive.apache.org/dist/qpid/dispatch/${DISPATCH_VERSION}/qpid-dispatch-${DISPATCH_VERSION}.tar.gz
+ROUTER_SOURCE_URL=https://dist.apache.org/repos/dist/release/qpid/dispatch/${DISPATCH_VERSION}/qpid-dispatch-${DISPATCH_VERSION}.tar.gz
 
 # If a DOCKER_TAG is specified, go ahead and use it.
 # if DOCKER_TAG is not specified use the DISPATCH_VERSION as the DOCKER_TAG
